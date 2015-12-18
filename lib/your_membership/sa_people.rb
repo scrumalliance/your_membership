@@ -16,9 +16,9 @@ module YourMembership
       #
       # @return [Array] A list of API IDs for non-members in your community.
       def self.all_getIDs(options = {}) # rubocop:disable Style/MethodName
-        response = post('/', :body => build_XML_request('Sa.People.All.GetIDs', nil, options))
-        response_valid? response
-        response['YourMembership_Response']['Sa.People.All.GetIDs']['People']['ID']
+        @response = post('/', :body => build_XML_request('Sa.People.All.GetIDs', nil, options))
+        response_valid? @response
+        @response['YourMembership_Response']['Sa.People.All.GetIDs']['People']['ID']
       end
 
       # Finds and returns a member or non-member <ID> using Import ID, Constituent ID or Website/Profile ID as criteria.
@@ -37,9 +37,9 @@ module YourMembership
       # @return [String] if a single record is found (normal for all calls except for :Email)
       # @return [Array] if multiple records are found (possible only for :Email searches)
       def self.profile_findID(options = {}) # rubocop:disable Style/MethodName
-        response = post('/', :body => build_XML_request('Sa.People.Profile.FindID', nil, options))
-        response_valid? response
-        response['YourMembership_Response']['Sa.People.Profile.FindID']['ID']
+        @response = post('/', :body => build_XML_request('Sa.People.Profile.FindID', nil, options))
+        response_valid? @response
+        @response['YourMembership_Response']['Sa.People.Profile.FindID']['ID']
       end
 
       # Returns a person's profile data.
@@ -51,9 +51,9 @@ module YourMembership
       def self.profile_get(id)
         options = {}
         options[:ID] = id
-        response = post('/', :body => build_XML_request('Sa.People.Profile.Get', nil, options))
-        response_valid? response
-        YourMembership::Profile.new response['YourMembership_Response']['Sa.People.Profile.Get']
+        @response = post('/', :body => build_XML_request('Sa.People.Profile.Get', nil, options))
+        response_valid? @response
+        YourMembership::Profile.new @response['YourMembership_Response']['Sa.People.Profile.Get']
       end
 
       # Returns a person's group relationship data. There are three types of relationships that members may have with
@@ -67,10 +67,10 @@ module YourMembership
       def self.profile_groups_get(id)
         options = {}
         options[:ID] = id
-        response = post('/', :body => build_XML_request('Sa.People.Profile.Groups.Get', nil, options))
+        @response = post('/', :body => build_XML_request('Sa.People.Profile.Groups.Get', nil, options))
 
-        response_valid? response
-        response['YourMembership_Response']['Sa.People.Profile.Groups.Get']
+        response_valid? @response
+        @response['YourMembership_Response']['Sa.People.Profile.Groups.Get']
       end
 
       # Updates an existing person's profile.
@@ -84,8 +84,11 @@ module YourMembership
         options = {}
         options['ID'] = id
         options['profile'] = profile
-        response = post('/', :body => build_XML_request('Sa.People.Profile.Update', nil, options))
-        response_valid? response
+        @response = post('/', :body => build_XML_request('Sa.People.Profile.Update', nil, options))
+        response_valid? @response
+      end
+      def self.response
+        @response
       end
     end
   end

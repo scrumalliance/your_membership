@@ -16,9 +16,10 @@ module YourMembership
       #
       # @return [Array] A list of API IDs for members in your community.
       def self.all_getIDs(options = {}) # rubocop:disable Style/MethodName
-        response = post('/', :body => build_XML_request('Sa.Members.All.GetIDs', nil, options))
-        response_valid? response
-        response['YourMembership_Response']['Sa.Members.All.GetIDs']['Members']['ID']
+        @response = post('/', :body => build_XML_request('Sa.Members.All.GetIDs', nil, options))
+        response_valid? @response
+        members_hash = @response['YourMembership_Response']['Sa.Members.All.GetIDs']['Members']
+        members_hash ? members_hash.fetch('ID') : []
       end
 
       # Returns a Hash of recent member activity on your YourMembership Site
@@ -33,9 +34,9 @@ module YourMembership
       #  * Latest comment on a post
       #  * Latest photo
       def self.all_recentActivity # rubocop:disable Style/MethodName
-        response = post('/', :body => build_XML_request('Sa.Members.All.RecentActivity'))
-        response_valid? response
-        response['YourMembership_Response']['Sa.Members.All.RecentActivity'].to_h
+        @response = post('/', :body => build_XML_request('Sa.Members.All.RecentActivity'))
+        response_valid? @response
+        @response['YourMembership_Response']['Sa.Members.All.RecentActivity'].to_h
       end
 
       # Returns a list of order IDs for a specified member that may be optionally filtered by timestamp and status.
@@ -56,9 +57,9 @@ module YourMembership
         if options[:Status]
           options[:Status] = YourMembership::Commerce.convert_order_status(options[:Status])
         end
-        response = post('/', :body => build_XML_request('Sa.Members.Commerce.Store.GetOrderIDs', nil, options))
-        response_valid? response
-        response_to_array response['YourMembership_Response']['Sa.Members.Commerce.Store.GetOrderIDs']['Orders'], ['Order'], 'InvoiceID'
+        @response = post('/', :body => build_XML_request('Sa.Members.Commerce.Store.GetOrderIDs', nil, options))
+        response_valid? @response
+        response_to_array @response['YourMembership_Response']['Sa.Members.Commerce.Store.GetOrderIDs']['Orders'], ['Order'], 'InvoiceID'
       end
 
       # Returns Event Registration details for the provided Event and Member ID. Includes all Event Registration details
@@ -76,10 +77,10 @@ module YourMembership
         options[:EventID] = event_id
         options[:ID] = member_id
 
-        response = post('/', :body => build_XML_request('Sa.Members.Events.Event.Registration.Get', nil, options))
+        @response = post('/', :body => build_XML_request('Sa.Members.Events.Event.Registration.Get', nil, options))
 
-        response_valid? response
-        response_to_array_of_hashes response['YourMembership_Response']['Sa.Members.Events.Event.Registration.Get'], ['Registrations', 'Registration']
+        response_valid? @response
+        response_to_array_of_hashes @response['YourMembership_Response']['Sa.Members.Events.Event.Registration.Get'], ['Registrations', 'Registration']
       end
 
       # Returns a list of a member's referrals.
@@ -95,10 +96,10 @@ module YourMembership
       def self.referrals_get(member_id, options = {})
         options[:ID] = member_id
 
-        response = post('/', :body => build_XML_request('Sa.Members.Referrals.Get', nil, options))
+        @response = post('/', :body => build_XML_request('Sa.Members.Referrals.Get', nil, options))
 
-        response_valid? response
-        response_to_array_of_hashes response['YourMembership_Response']['Sa.Members.Referrals.Get'], ['Member']
+        response_valid? @response
+        response_to_array_of_hashes @response['YourMembership_Response']['Sa.Members.Referrals.Get'], ['Member']
       end
 
       # Returns a list of a member's sub-accounts.
@@ -114,10 +115,10 @@ module YourMembership
       def self.subAccounts_get(member_id, options = {}) # rubocop:disable Style/MethodName
         options[:ID] = member_id
 
-        response = post('/', :body => build_XML_request('Sa.Members.SubAccounts.Get', nil, options))
+        @response = post('/', :body => build_XML_request('Sa.Members.SubAccounts.Get', nil, options))
 
-        response_valid? response
-        response_to_array_of_hashes response['YourMembership_Response']['Sa.Members.SubAccounts.Get'], ['Member']
+        response_valid? @response
+        response_to_array_of_hashes @response['YourMembership_Response']['Sa.Members.SubAccounts.Get'], ['Member']
       end
 
       # Create a CEU Journal Entry.
@@ -150,8 +151,8 @@ module YourMembership
         options['Description'] = description
         options['EntryDate'] = entry_date
 
-        response = post('/', :body => build_XML_request('Sa.Members.Certifications.JournalEntry.Create', nil, options))
-        response_valid? response
+        @response = post('/', :body => build_XML_request('Sa.Members.Certifications.JournalEntry.Create', nil, options))
+        response_valid? @response
       end
 
       # Creates a new member profile and returns a member object.
@@ -166,13 +167,16 @@ module YourMembership
       def self.profile_create(profile)
         options = {}
         options['profile'] = profile
-        response = post('/', :body => build_XML_request('Sa.Members.Profile.Create', nil, options))
-        response_valid? response
+        @response = post('/', :body => build_XML_request('Sa.Members.Profile.Create', nil, options))
+        response_valid? @response
         YourMembership::Sa::Auth.authenticate(
           YourMembership::Session.create,
           profile.data['Username'],
           profile.data['Password']
         )
+      end
+      def self.response
+        @response
       end
     end
   end
