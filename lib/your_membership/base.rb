@@ -123,7 +123,7 @@ module YourMembership
     #  traversed in order before retrieving the data associated with the key_for_array
     # @param [String] key_for_array this is the key that represents the list of items you want to turn into an array.
     # @return [Array] A single dimension array of values.
-    def self.response_to_array(response_body, keys = [], key_for_array)
+    def self.response_to_array(response_body, keys = [], key_for_array=nil)
       return_array = []
       response_hash_array = response_to_array_of_hashes(response_body, keys)
       response_hash_array.each do |item|

@@ -1,5 +1,5 @@
 require "spec_helper"
-require "profile"
+require "your_membership/profile"
 
 describe YourMembership::Profile do
   before do
@@ -79,24 +79,34 @@ describe YourMembership::Profile do
     }
   end
   it "accepts and sets required parameters for new profiles" do
-    profile = YourMembership::Profile.create_new('afirstname', 'alastname', 'amembertypecode', 'ausername', 'apassword')
+    profile = YourMembership::Profile.create_new('afirstname', 'alastname', 'amembertypecode', 'anemail', 'ausername', 'apassword')
     profile.data['FirstName'].should == 'afirstname'
     profile.data['LastName'].should == 'alastname'
     profile.data['MemberTypeCode'].should == 'amembertypecode'
+    profile.data['EmailAddr'].should == 'anemail'
     profile.data['Username'].should == 'ausername'
     profile.data['Password'].should == 'apassword'
   end
 
   it "adds arbitrary keys when creating new profiles" do
     profile_hash = {'foo' => 'bar'}
-    profile = YourMembership::Profile.create_new('afirstname', 'alastname', 'amembertypecode', 'ausername', nil, profile_hash)
+    profile = YourMembership::Profile.create_new('afirstname', 'alastname', 'amembertypecode', 'anemail', 'ausername', nil,
+                                                 profile_hash)
     profile.data.should include 'foo'
     profile.data['foo'].should == 'bar'
   end
 
   it "adds arbitrary custom keys when creating new profiles" do
-    profile_custom_hash = {'foo' => 'bar'}
-    profile = YourMembership::Profile.create_new('afirstname', 'alastname', 'amembertypecode', 'ausername', nil, {}, profile_custom_hash)
+    profile_custom_hash = { 'CustomFieldResponses' => {
+                              'CustomFieldResponse' => [
+                                { 'FieldCode' =>          'foo',
+                                  'Values' => {'Value' => 'bar'},
+                                }
+                              ]
+                            }
+                          }
+    profile = YourMembership::Profile.create_new('afirstname', 'alastname', 'amembertypecode', 'anemail', 'ausername', nil,
+                                                 profile_custom_hash)
     profile.custom_data.should include 'foo'
     profile.custom_data['foo'].should == 'bar'
   end

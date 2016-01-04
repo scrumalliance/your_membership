@@ -21,8 +21,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "httparty", "~>0.13.1"
-  spec.add_dependency "nokogiri", "~>1.6"
+  spec.add_dependency "httparty", '~>0.11.0' # 0.12.0 requires ruby-1.9.3; was "~>0.13.1"
+  spec.add_dependency "nokogiri", '~>1.5.2'  # 1.6 drops support for ruby-1.8.7; was "~>1.6"
 
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
